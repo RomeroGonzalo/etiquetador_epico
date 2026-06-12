@@ -167,13 +167,12 @@ def build_page(
     out_doc: fitz.Document,
 ) -> fitz.Page:
     """
-    New label layout (left-aligned text, barcode centered at bottom):
+    New label layout (two-column text, barcode centered at bottom):
 
-        PRODUCT NAME            ← bold, left, auto-shrink/wrap
-        SKU: CODE               ← bold, left
-        RUBRO: CATEGORY         ← bold, left, uppercase
-        $ PRICE                 ← bold, left, same size as name
-        [ ||||||||||||||||| ]   ← barcode centrado, zona inferior
+        PRODUCT NAME     $ PRICE  ← name/sku/rubro left col, price right col (big)
+        SKU: CODE
+        RUBRO: CATEGORY
+        [ ||||||||||||||||||||| ] ← barcode centrado, zona inferior (sin cambios)
     """
     w = src_doc[page_idx].rect.width
     h = src_doc[page_idx].rect.height
@@ -188,8 +187,8 @@ def build_page(
     h_name = h * 0.15
     h_sku  = h * 0.11
     h_rub  = h * 0.11
-    h_pre  = h * 0.20   # larger zone → bigger price font
-    h_bc   = h * 0.35   # give the extra 5 % to precio
+    h_pre  = h * 0.20
+    h_bc   = h * 0.35
     # 0.04 + 0.15 + 0.11 + 0.11 + 0.20 + 0.35 + 0.04 = 1.00 ✓
 
     def fs(zone: float, lo: float, hi: float) -> float:
@@ -216,7 +215,7 @@ def build_page(
     fs_name = fs(h_name, 6.0, 36.0)
     fs_sku  = fs(h_sku,  5.0, 28.0)
     fs_rub  = fs(h_rub,  5.0, 28.0)
-    fs_pre  = fs(h_pre,  5.5, 36.0)   # same zone as name → same size
+    fs_pre  = fs(h_pre,  5.5, 36.0)
 
     display_sku = re.sub(r"!+$", "", info["sku"]).strip()
 
