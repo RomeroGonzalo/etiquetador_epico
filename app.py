@@ -1,9 +1,11 @@
+import base64
 import re
 from typing import Optional
 
 import fitz
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 st.set_page_config(page_title="Enriquecedor de Etiquetas", page_icon="🏷️", layout="centered")
 st.title("Enriquecedor de Etiquetas")
@@ -294,14 +296,46 @@ if pdf_file and excel_file:
 
             st.dataframe(rows, use_container_width=True, hide_index=True)
 
-            st.download_button(
-                "Descargar PDF",
-                data=out.tobytes(),
-                file_name="etiquetas_final.pdf",
-                mime="application/pdf",
-                type="primary",
-                use_container_width=True,
-            )
+            pdf_bytes = out.tobytes()
+            b64 = base64.b64encode(pdf_bytes).decode()
+
+            col_dl, col_pr = st.columns(2)
+
+            with col_dl:
+                st.download_button(
+                    "⬇️ Descargar PDF",
+                    data=pdf_bytes,
+                    file_name="etiquetas_final.pdf",
+                    mime="application/pdf",
+                    type="primary",
+                    use_container_width=True,
+                )
+
+            with col_pr:
+                components.html(
+                    f"""
+                    <style>
+                      button {{
+                        background:#28a745; color:white; border:none;
+                        border-radius:8px; padding:9px 16px;
+                        font-size:15px; cursor:pointer; width:100%;
+                        font-family:sans-serif; font-weight:600;
+                      }}
+                      button:hover {{ background:#218838; }}
+                    </style>
+                    <script>
+                    function imprimir() {{
+                      var arr = Uint8Array.from(atob("{b64}"), c => c.charCodeAt(0));
+                      var blob = new Blob([arr], {{type:"application/pdf"}});
+                      var url  = URL.createObjectURL(blob);
+                      var win  = window.open(url, "_blank");
+                      if (!win) alert("Habilitá las ventanas emergentes para este sitio e intentá de nuevo.");
+                    }}
+                    </script>
+                    <button onclick="imprimir()">🖨️ Imprimir</button>
+                    """,
+                    height=46,
+                )
 
         except Exception as exc:
             st.error(f"Error: {exc}")
