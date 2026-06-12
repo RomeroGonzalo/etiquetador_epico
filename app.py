@@ -314,6 +314,7 @@ if pdf_file and excel_file:
                 components.html(
                     f"""
                     <style>
+                      html, body {{ margin:0; padding:0; }}
                       button {{
                         background:#28a745; color:white; border:none;
                         border-radius:8px; padding:9px 16px;
